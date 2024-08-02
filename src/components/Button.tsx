@@ -1,12 +1,13 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 type Pros = {
-    title: string
-    style?: string
+    title: string;
+    style?:  ViewStyle | ViewStyle[];
+    onPress?: () => void;
 }
-export default function Button({title, style}: Pros) {
+export default function Button({title, style, onPress}: Pros) {
     return (
 
-        <TouchableOpacity  style={[styles.container, style]}>
+        <TouchableOpacity  style={[styles.container, style]} onPress={onPress}>
             <Text style={styles.text}>{title}</Text>
         </TouchableOpacity>
     )

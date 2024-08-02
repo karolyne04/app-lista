@@ -4,6 +4,9 @@ import Button from "../components/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import Categoria from "./Categoria";
+
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -11,6 +14,11 @@ export default function Login() {
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const navigation = useNavigation();
+
+    const handleLogin = () => {
+        navigation.navigate('Categoria');
+    };
 
     return (
         <View style={styles.continer}>
@@ -70,7 +78,7 @@ export default function Login() {
 					</TouchableOpacity>
             </View>
 
-            <Button title="Entrar" style={styles.button}/>
+            <Button title="Entrar" style={styles.button} onPress={handleLogin}/>
 
             <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
         </View>
@@ -84,6 +92,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap:5,
         padding: 16,
+        backgroundColor: "#fff"
     },
     logo: {
         width: 150,
