@@ -1,6 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { Fontisto } from '@expo/vector-icons';
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 interface CardProps {
     title: string;
@@ -13,12 +15,13 @@ export default function Card({title, image}: CardProps) {
             <Text style={styles.textItem}>{title}</Text>
 
             <View style={styles.row}>
-                <TouchableOpacity style={styles.button}>
-                    <AntDesign style={styles.text} name="plus" size={18} color="black" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Fontisto style={styles.text} name="minus-a" size={18} color="black" />
-                </TouchableOpacity>
+                
+                    
+                    <Entypo style={styles.text} name="plus" size={24} color="black" />
+               
+                    
+                    <FontAwesome6  style={styles.text} name="minus" size={24} color="black" />
+               
             </View>
         </View>
     );
@@ -40,10 +43,12 @@ const styles = StyleSheet.create({
         padding: 10,
         flexDirection: "row",
         justifyContent: "space-between",
+        flexWrap:  "wrap",
     },
     textItem: {
-        fontSize: 18,
+        fontSize: 16,
         marginBottom: 10,
+        flexWrap:  "wrap",
     },
     image: {
         width: "20%",
@@ -63,6 +68,8 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     text: {
-        color: "#fff",
+        fontWeight: "bold",
+        color: "#6E3CBC",
+
     },
 })
