@@ -17,8 +17,11 @@ export default function Login() {
     const navigation = useNavigation();
 
     const handleLogin = () => {
-        navigation.navigate('Categoria');
+        navigation.navigate('Shooping');
     };
+    const handleCreate = () => {
+        navigation.navigate('Cadastro');
+    }
 
     return (
         <View style={styles.continer}>
@@ -26,7 +29,7 @@ export default function Login() {
                 source={require("../../assets/Preview.png")} 
                 style={styles.logo}
             />
-            <Text style={styles.title}>Login</Text>
+            {/* <Text style={styles.title}>Login</Text> */}
             <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
                     <MaterialCommunityIcons
 						name="email-outline"
@@ -79,6 +82,7 @@ export default function Login() {
             </View>
 
             <Button title="Entrar" style={styles.button} onPress={handleLogin}/>
+            <Text style={styles.forgotPassword} onPress={handleCreate}>Criar conta</Text>
 
             <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
         </View>
@@ -90,7 +94,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        gap:5,
+        gap: 2,
         padding: 16,
         backgroundColor: "#fff"
     },

@@ -3,25 +3,37 @@ import { AntDesign } from '@expo/vector-icons';
 import { Fontisto } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useShoppingListStore } from "../store/useShoppingListStore";
 
 interface CardProps {
     title: string;
     image: string;
 }
 export default function Card({title, image}: CardProps) {
+    const addProductToList = useShoppingListStore((state) => state.addProductToList);
+    const removeProductFromList = useShoppingListStore((state) => state.removeProductFromList);
+
+    const handleAddProduct = () => {
+        addProductToList({ title, image });
+    };
+
+    const handleRemoveProduct = () => {
+        removeProductFromList(title); // Vamos usar o `title` como identificador único
+    };
+
     return (
         <View style={styles.card}>
              <Image source={{ uri: image }} style={styles.image} />
             <Text style={styles.textItem}>{title}</Text>
 
-            <View style={styles.row}>
-                
-                    
+            <View style={styles.row}>   
+                <TouchableOpacity onPress={handleAddProduct}>
                     <Entypo style={styles.text} name="plus" size={24} color="black" />
+                </TouchableOpacity>
                
-                    
+                <TouchableOpacity onPress={handleRemoveProduct}>
                     <FontAwesome6  style={styles.text} name="minus" size={24} color="black" />
-               
+                </TouchableOpacity>
             </View>
         </View>
     );

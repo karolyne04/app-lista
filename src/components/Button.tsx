@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
 type Pros = {
     title: string;
     style?:  ViewStyle | ViewStyle[];
