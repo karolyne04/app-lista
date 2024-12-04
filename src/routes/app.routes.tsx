@@ -20,6 +20,11 @@ export function AppRoutes() {
             options={{
                 title: "Home",
                 headerTitleAlign: "center",
+                headerTitleStyle: {
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    color: "#6E3CBC"
+                },
                 headerBackTitleVisible: false,
                 headerBackImage: () => (
                     <Ionicons
