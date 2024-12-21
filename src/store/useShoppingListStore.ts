@@ -19,32 +19,56 @@ export const useShoppingListStore = create((set, get) => ({
 
   // Adiciona ou atualiza um produto na lista
   addProductToList: async (product) => {
-    const existingItem = get().shoppingList.find(item => item.id === product.id);
+    const shoppingList = get().shoppingList.map(item => 
+      item.id === product.id
+      ? {...item, quantity: item.quantity + 1}
+      : item
+    );
 
-    if (existingItem) {
-      // Se o item já estiver na lista, incrementa a quantidade
-      existingItem.quantity += 1;
-      set({ shoppingList: [...get().shoppingList] });
-    } else {
-      // Caso contrário, adiciona o item à lista
-      const updatedList = [...get().shoppingList, product];
-      set({ shoppingList: updatedList });
+    const itemExists = shoppingList.some(item => item.id === product.id);
+    if (!itemExists) {
+      shoppingList.push({...product, quantity: 1});
+
     }
+
+    set({shoppingList});
 
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(get().shoppingList));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(shoppingList));
     } catch (error) {
-      console.error("Erro ao salvar o item:", error);
+      console.error("Erro ao salvar o item:", er);
+      
     }
+    // const itemIndex = shoppingList.findIndex(item => item.id === product.id);
+
+    // if (itemIndex >= 0) {
+    //   shoppingList[itemIndex] = {
+    //     ...shoppingList[itemIndex],
+    //     quantity: shoppingList[itemIndex].quantity + 1,
+    //   }
+    // } else {
+    //   shoppingList.push({...product, quantity: 1});
+    // }
+    // const existingItem = get().shoppingList.find(item => item.id === product.id);
   },
 
   // Remove um produto da lista
   removeProductFromList: async (id) => {
-    const updatedList = get().shoppingList.filter((item) => item.id !== id);
-    set({ shoppingList: updatedList });
+    let shoppingList = [...get().shoppingList];
+    const  itemIndex = shoppingList.findIndex(item => item.id === id);
+
+    if (itemIndex >= 0) {
+      const item = shoppingList[itemIndex];
+      if (item.quantity > 1) {
+        shoppingList[itemIndex] = {...item, quantity: item.quantity - 1};
+      } else {
+        shoppingList =  shoppingList.filter(item => item.id !== id);
+      }
+    }
+    set({shoppingList});
 
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(shoppingList));
     } catch (error) {
       console.error("Erro ao remover o item:", error);
     }

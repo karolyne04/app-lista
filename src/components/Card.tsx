@@ -21,40 +21,32 @@ export default function Card({ id, title, image }: CardProps) {
       id,
       title,
       image,
-      quantity: (itemInList ? itemInList.quantity : 0) + 1, // Incrementa a quantidade no item clicado
     });
   };
 
   const handleRemoveProduct = () => {
-    if (itemInList && itemInList.quantity > 1) {
-      addProductToList({
-        id,
-        title,
-        image,
-        quantity: itemInList.quantity - 1, // Decrementa a quantidade no item clicado
-      });
-    } else if (itemInList) {
       removeProductFromList(id); // Remove o item caso a quantidade chegue a 1
-    }
-  };
+  }
+  
 
   return (
     <View style={styles.card}>
       <Image source={{ uri: image }} style={styles.image} />
       <Text style={styles.textItem}>{title}</Text>
-
       <View style={styles.row}>
         <TouchableOpacity onPress={handleAddProduct}>
           <Entypo style={styles.text} name="plus" size={24} color="black" />
         </TouchableOpacity>
 
-        <Text style={styles.quantity}>
-          {itemInList ? itemInList.quantity : 0}
-        </Text>
 
         <TouchableOpacity onPress={handleRemoveProduct}>
           <FontAwesome6 style={styles.text} name="minus" size={24} color="black" />
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.info}>
+          <Text style={styles.quantity}>Q: {itemInList ? itemInList.quantity : 0}</Text>
+          <Text style={styles.price}>R$:4,00</Text>
       </View>
     </View>
   );
@@ -100,5 +92,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     color: "#6E3CBC",
+  },
+  info: {
+    // marginTop: 5,
+    gap: 3,
+    flexDirection: "column",
+    alignItems: "flex-start", // Centraliza o texto abaixo dos botões
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
   },
 });

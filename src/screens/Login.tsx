@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Categoria from "./Categoria";
+import CustomAlert from "../components/CustomAlert";
 
 
 export default function Login() {
@@ -15,9 +16,22 @@ export default function Login() {
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const navigation = useNavigation();
+    const [alertType, setAlertType] = useState<"success" | "error" | null>(null);
+    const [alertMessage, setAlertMessage] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
+
 
     const handleLogin = () => {
-        navigation.navigate('Shooping');
+        if (email === "teste@example.com" && password === "123456") {
+            setAlertType("success");
+            setAlertMessage("Login realizado com sucesso!");
+            navigation.navigate('Shooping');
+
+        } else {
+            setAlertType("error");
+            setAlertMessage("E-mail ou senha inválidos. Tente novamente.")
+        }
+        setShowAlert(true);
     };
     const handleCreate = () => {
         navigation.navigate('Cadastro');
@@ -28,14 +42,14 @@ export default function Login() {
             <Image 
                 source={require("../../assets/Preview.png")} 
                 style={styles.logo}
-            />
+                />
             {/* <Text style={styles.title}>Login</Text> */}
             <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
                     <MaterialCommunityIcons
 						name="email-outline"
 						size={24}
 						color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
-					/>
+                        />
                 <TextInput 
                     style={styles.input}
                     placeholder="Email:"
@@ -47,7 +61,7 @@ export default function Login() {
 					onFocus={() => setEmailFocused(true)}
 					onBlur={() => setEmailFocused(false)}
                     
-                />
+                    />
             </View>
 
             <View style={[styles.cardInput, passwordFocused && styles.cardInputFocused]}>
@@ -55,7 +69,7 @@ export default function Login() {
 						name="lock-closed-outline"
 						size={24}
 						color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-					/>
+                        />
                 <TextInput 
                     style={styles.input}
                     placeholder="Sua senha"
@@ -68,7 +82,7 @@ export default function Login() {
                     secureTextEntry={!passwordVisible}
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
-                />
+                    />
 
                 <TouchableOpacity
 						onPress={() => setPasswordVisible(!passwordVisible)}
@@ -77,9 +91,10 @@ export default function Login() {
 							name={passwordVisible ? "eye" : "eye-off"}
 							size={20}
 							color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-						/>
+                            />
 					</TouchableOpacity>
             </View>
+        {showAlert && <CustomAlert type={alertType} message={alertMessage}  onClose={() => setShowAlert(false)}/>}
 
             <Button title="Entrar" style={styles.button} onPress={handleLogin}/>
             <Text style={styles.forgotPassword} onPress={handleCreate}>Criar conta</Text>
