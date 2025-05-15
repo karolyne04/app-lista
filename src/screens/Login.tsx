@@ -3,13 +3,15 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Categoria from "./Categoria";
 import CustomAlert from "../components/CustomAlert";
-
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function Login() {
+    const emailRef = useRef(null);
+    const passwordRef = useRef(null);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailFocused, setEmailFocused] = useState(false);
@@ -22,85 +24,94 @@ export default function Login() {
 
 
     const handleLogin = () => {
-        if (email === "teste@example.com" && password === "123456") {
-            setAlertType("success");
-            setAlertMessage("Login realizado com sucesso!");
-            navigation.navigate('Shooping');
+        // if (email === "teste@example.com" && password === "123456") {
+        //     setAlertType("success");
+        //     setAlertMessage("Login realizado com sucesso!");
+        navigation.navigate('Shooping');
 
-        } else {
-            setAlertType("error");
-            setAlertMessage("E-mail ou senha inválidos. Tente novamente.")
-        }
-        setShowAlert(true);
+        // } else {
+        //     setAlertType("error");
+        //     setAlertMessage("E-mail ou senha inválidos. Tente novamente.")
+        // }
+        // setShowAlert(true);
     };
     const handleCreate = () => {
         navigation.navigate('Cadastro');
     }
 
     return (
-        <View style={styles.continer}>
-            <Image 
-                source={require("../../assets/Preview.png")} 
-                style={styles.logo}
+        <KeyboardAvoidingView
+            style={styles.continer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+
+
+            <View style={[styles.continer, { pointerEvents: 'box-none' }]}>
+                <Image
+                    source={require("../../assets/Preview.png")}
+                    style={styles.logo}
                 />
-            {/* <Text style={styles.title}>Login</Text> */}
-            <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
+                {/* <Text style={styles.title}>Login</Text> */}
+                <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
                     <MaterialCommunityIcons
-						name="email-outline"
-						size={24}
-						color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
-                        />
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Email:"
-                    keyboardType="email-address"
-					placeholderTextColor="#AEAEAE"
-					autoCapitalize="none"
-					onChangeText={setEmail}
-					value={email}
-					onFocus={() => setEmailFocused(true)}
-					onBlur={() => setEmailFocused(false)}
-                    
+                        name="email-outline"
+                        size={24}
+                        color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
                     />
-            </View>
+                    <TextInput
+                        ref={emailRef}
+                        style={styles.input}
+                        placeholder="Email:"
+                        keyboardType="email-address"
+                        placeholderTextColor="#AEAEAE"
+                        autoCapitalize="none"
+                        onChangeText={setEmail}
+                        value={email}
+                        onFocus={() => setEmailFocused(true)}
+                        onBlur={() => setEmailFocused(false)}
 
-            <View style={[styles.cardInput, passwordFocused && styles.cardInputFocused]}>
-                     <Ionicons
-						name="lock-closed-outline"
-						size={24}
-						color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                        />
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Sua senha"
-                    textContentType="password"
-                    
-                    autoCapitalize="none"
-                    placeholderTextColor="#AEAEAE"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!passwordVisible}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
+                    />
+                </View>
+
+                <View style={[styles.cardInput, passwordFocused && styles.cardInputFocused]}>
+                    <Ionicons
+                        name="lock-closed-outline"
+                        size={24}
+                        color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
+                    />
+                    <TextInput
+                        ref={passwordRef}
+                        style={styles.input}
+                        placeholder="Sua senha"
+                        textContentType="password"
+
+                        autoCapitalize="none"
+                        placeholderTextColor="#AEAEAE"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!passwordVisible}
+                        onFocus={() => setPasswordFocused(true)}
+                        onBlur={() => setPasswordFocused(false)}
                     />
 
-                <TouchableOpacity
-						onPress={() => setPasswordVisible(!passwordVisible)}
-					>
-						<Ionicons
-							name={passwordVisible ? "eye" : "eye-off"}
-							size={20}
-							color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                            />
-					</TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                    >
+                        <Ionicons
+                            name={passwordVisible ? "eye" : "eye-off"}
+                            size={20}
+                            color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
+                        />
+                    </TouchableOpacity>
+                </View>
+                {showAlert && <CustomAlert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
+
+                <Button title="Entrar" style={styles.button} onPress={handleLogin} />
+                <Text style={styles.forgotPassword} onPress={handleCreate}>Criar conta</Text>
+
+                <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
             </View>
-        {showAlert && <CustomAlert type={alertType} message={alertMessage}  onClose={() => setShowAlert(false)}/>}
-
-            <Button title="Entrar" style={styles.button} onPress={handleLogin}/>
-            <Text style={styles.forgotPassword} onPress={handleCreate}>Criar conta</Text>
-
-            <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 
@@ -133,13 +144,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         marginTop: 16,
         alignSelf: "center",
-        alignItems: "center", 
+        alignItems: "center",
         backgroundColor: "#fff",
-        
+
     },
     cardInputFocused: {
-		borderColor: "#6E3CBC",
-	},
+        borderColor: "#6E3CBC",
+    },
     button: {
         marginTop: 16
     },
