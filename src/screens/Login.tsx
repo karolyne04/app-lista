@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import Categoria from "./Categoria";
 import CustomAlert from "../components/CustomAlert";
 import { KeyboardAvoidingView, Platform } from 'react-native';
+import colors from "../util/colors";
 
 export default function Login() {
     const emailRef = useRef(null);
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 2,
         padding: 16,
-        backgroundColor: "#fff"
+        backgroundColor: colors.background,
     },
     logo: {
         width: 150,
@@ -131,36 +132,36 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: "bold",
-        color: "#6E3CBC",
+        color: colors.primary,
         marginBottom: 24,
     },
     cardInput: {
         width: 352,
         height: 50,
         borderWidth: 1.67,
-        borderColor: "#AEAEAE",
+        borderColor: colors.sec,
         borderRadius: 50,
         paddingHorizontal: 16,
         flexDirection: "row",
         marginTop: 16,
         alignSelf: "center",
         alignItems: "center",
-        backgroundColor: "#fff",
+        backgroundColor: colors.background,
 
     },
     cardInputFocused: {
-        borderColor: "#6E3CBC",
+        borderColor: colors.primary,
     },
     button: {
         marginTop: 16
     },
     input: {
         flex: 1,
-        height: 30,
+        height: 40,
         marginLeft: 10,
     },
     forgotPassword: {
-        color: '#6E3CBC',
+        color: colors.primary,
         fontSize: 14,
         textDecorationLine: 'underline',
         marginTop: 16,

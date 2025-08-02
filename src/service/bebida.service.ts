@@ -3,6 +3,7 @@ export const bebidas = [
     {
       id: "1",
       name: "Café",
+     
       image: "https://www.mercafe.com.br/_next/image?url=https://mercafefaststore.vtexassets.com/assets/vtex.file-manager-graphql/images/631b3d63-2bf7-468b-a420-dda45c73e6eb___9525e2e2e5cb18a14ef14cfe184f073e.png&w=3840&q=75",
     },
     {

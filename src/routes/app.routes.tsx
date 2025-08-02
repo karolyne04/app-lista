@@ -9,32 +9,35 @@ import ShoppingList from '../screens/ShoppingList';
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet } from 'react-native';
 import Dicas from '../screens/Dicas';
+import RecoverPassword from '../screens/RecoverPassword';
+import UserProfile from '../screens/UserProfile';
+import Historico from '../screens/Historico';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
 export function AppRoutes() {
     return (
         <Navigator initialRouteName="Categories">
-            <Screen name='Login' component={Login} options={{ headerShown: false }}/>
-            <Screen name='Shooping' component={Shooping} 
-            options={{
-                title: "Home",
-                headerTitleAlign: "center",
-                headerTitleStyle: {
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    color: "#6E3CBC"
-                },
-                headerBackTitleVisible: false,
-                headerBackImage: () => (
-                    <Ionicons
+            <Screen name='Login' component={Login} options={{ headerShown: false }} />
+            <Screen name='Shooping' component={Shooping}
+                options={{
+                    title: "Home",
+                    headerTitleAlign: "center",
+                    headerTitleStyle: {
+                        fontSize: 20,
+                        fontWeight: "bold",
+                        color: "#6E3CBC"
+                    },
+                    headerBackTitleVisible: false,
+                    headerBackImage: () => (
+                        <Ionicons
                             name="chevron-back"
                             size={24}
-							color="#6E3CBC"
-							style={styles.icon}
-                    />
-                )
-            }}
+                            color="#6E3CBC"
+                            style={styles.icon}
+                        />
+                    )
+                }}
             />
             <Screen name='Categoria' component={Categoria}
                 options={{
@@ -45,15 +48,15 @@ export function AppRoutes() {
                         <Ionicons
                             name="chevron-back"
                             size={24}
-							color="#6E3CBC"
-							style={styles.icon}
+                            color="#6E3CBC"
+                            style={styles.icon}
                         />
                     )
                 }}
             />
             <Screen name='Product' component={Product} />
-            <Screen name='sop' component={Sop}/>
-            <Screen name='Cadastro' component={Cadastro} 
+            <Screen name='sop' component={Sop} />
+            <Screen name='Cadastro' component={Cadastro}
                 options={{
                     title: "Criar Usuario",
                     headerTitleAlign: "center",
@@ -62,8 +65,8 @@ export function AppRoutes() {
                         <Ionicons
                             name="chevron-back"
                             size={24}
-							color="#6E3CBC"
-							style={styles.icon}
+                            color="#6E3CBC"
+                            style={styles.icon}
                         />
                     )
                 }}
@@ -77,13 +80,13 @@ export function AppRoutes() {
                         <Ionicons
                             name="chevron-back"
                             size={24}
-							color="#6E3CBC"
-							style={styles.icon}
+                            color="#6E3CBC"
+                            style={styles.icon}
                         />
                     )
                 }}
             />
-            <Screen name="Dicas" component={Dicas} 
+            <Screen name="Dicas" component={Dicas}
                 options={{
                     title: "Dicas",
                     headerTitleAlign: "center",
@@ -92,18 +95,64 @@ export function AppRoutes() {
                         <Ionicons
                             name="chevron-back"
                             size={24}
-							color="#6E3CBC"
-							style={styles.icon}
+                            color="#6E3CBC"
+                            style={styles.icon}
                         />
                     )
                 }}
             />
+            <Screen name="RecoverPassword" component={RecoverPassword}
+                options={{
+                    title: "Recuperar Senha",
+                    headerTitleAlign: "center",
+                    headerBackTitleVisible: false,
+                    headerBackImage: () => (
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color="#6E3CBC"
+                            style={styles.icon}
+                        />
+                    )
+                }}
+            />
+            <Screen name="UserProfile" component={UserProfile}
+                options={{
+                    title: "Perfil",
+                    headerTitleAlign: "center",
+                    headerBackTitleVisible: false,
+                    headerBackImage: () => (
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color="#6E3CBC"
+                            style={styles.icon}
+                        />
+                    )
+                }}
+            />
+            <Screen name="Historico" component={Historico}
+                options={{
+                    title: "Histórico",
+                    headerTitleAlign: "center",
+                    headerBackTitleVisible: false,
+                    headerBackImage: () => (
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color="#6E3CBC"
+                            style={styles.icon}
+                        />
+                    )
+                }}
+            />
+
         </Navigator>
     )
 }
 
 const styles = StyleSheet.create({
-	icon: {
-		marginLeft: 10,
-	},
+    icon: {
+        marginLeft: 10,
+    },
 })

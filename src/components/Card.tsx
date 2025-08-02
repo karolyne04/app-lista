@@ -25,9 +25,9 @@ export default function Card({ id, title, image }: CardProps) {
   };
 
   const handleRemoveProduct = () => {
-      removeProductFromList(id); // Remove o item caso a quantidade chegue a 1
+    removeProductFromList(id); // Remove o item caso a quantidade chegue a 1
   }
-  
+
 
   return (
     <View style={styles.card}>
@@ -45,8 +45,8 @@ export default function Card({ id, title, image }: CardProps) {
       </View>
 
       <View style={styles.info}>
-          <Text style={styles.quantity}>Q: {itemInList ? itemInList.quantity : 0}</Text>
-          <Text style={styles.price}>R$:4,00</Text>
+        <Text style={styles.quantity}>Q: {itemInList ? itemInList.quantity : 0}</Text>
+
       </View>
     </View>
   );

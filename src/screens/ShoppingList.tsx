@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { View, Text, FlatList, Image, StyleSheet, Button } from "react-native";
 import { useShoppingListStore } from "../store/useShoppingListStore";
+import colors from "../util/colors";
 
 export default function ShoppingList() {
   const shoppingList = useShoppingListStore((state) => state.shoppingList);
@@ -9,7 +10,7 @@ export default function ShoppingList() {
 
   // Carrega a lista de compras ao montar o componente
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
+  useEffect(() => {
     loadShoppingList();
   }, []);
 
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   header: {
     fontSize: 24,

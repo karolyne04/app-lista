@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import colors from "../util/colors";
 
 export default function Cadastro() {
     const [name, setName] = useState("");
@@ -19,24 +20,24 @@ export default function Cadastro() {
     const navigation = useNavigation();
 
     const handleSignUp = () => {
-       navigation.navigate("Shooping");
+        navigation.navigate("Shooping");
     };
 
     return (
         <View style={styles.container}>
-            <Image 
-                source={require("../../assets/Preview.png")} 
+            <Image
+                source={require("../../assets/Preview.png")}
                 style={styles.logo}
             />
-           
-            
+
+
             <View style={[styles.cardInput, nameFocused && styles.cardInputFocused]}>
                 <MaterialCommunityIcons
                     name="account-outline"
                     size={24}
                     color={nameFocused ? "#6E3CBC" : "#AEAEAE"}
                 />
-                <TextInput 
+                <TextInput
                     style={styles.input}
                     placeholder="Nome Completo:"
                     placeholderTextColor="#AEAEAE"
@@ -53,7 +54,7 @@ export default function Cadastro() {
                     size={24}
                     color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
                 />
-                <TextInput 
+                <TextInput
                     style={styles.input}
                     placeholder="Email:"
                     keyboardType="email-address"
@@ -72,7 +73,7 @@ export default function Cadastro() {
                     size={24}
                     color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
                 />
-                <TextInput 
+                <TextInput
                     style={styles.input}
                     placeholder="Sua senha"
                     placeholderTextColor="#AEAEAE"
@@ -95,8 +96,8 @@ export default function Cadastro() {
             </View>
 
 
-            <Button title="Cadastrar" style={styles.button} onPress={handleSignUp}/>
-            
+            <Button title="Cadastrar" style={styles.button} onPress={handleSignUp} />
+
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.loginLink}>Já tem uma conta? Faça login</Text>
             </TouchableOpacity>
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 16,
-        backgroundColor: "#fff"
+        backgroundColor: colors.background,
     },
     logo: {
         width: 150,
@@ -119,24 +120,24 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: "bold",
-        color: "#6E3CBC",
+        color: colors.primary,
         marginBottom: 24,
     },
     cardInput: {
         width: 352,
         height: 50,
         borderWidth: 1.67,
-        borderColor: "#AEAEAE",
+        borderColor: colors.sec,
         borderRadius: 50,
         paddingHorizontal: 16,
         flexDirection: "row",
         marginTop: 16,
         alignSelf: "center",
-        alignItems: "center", 
-        backgroundColor: "#fff",
+        alignItems: "center",
+        backgroundColor: colors.background,
     },
     cardInputFocused: {
-        borderColor: "#6E3CBC",
+        borderColor: colors.primary,
     },
     input: {
         flex: 1,
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
         marginTop: 16
     },
     loginLink: {
-        color: '#6E3CBC',
+        color: colors.primary,
         fontSize: 14,
         textDecorationLine: 'underline',
         marginTop: 16,

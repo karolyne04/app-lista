@@ -12,6 +12,7 @@ import { getLaticinios } from "../service/laticinios.service";
 import { getLimpeza } from "../service/limpeza.service";
 import { getCasa } from "../service/casa.service";
 import { useShoppingListStore } from "../store/useShoppingListStore";
+import colors from "../util/colors";
 
 const placeholderImage = "https://via.placeholder.com/150"; // URL da imagem de placeholder
 
@@ -45,7 +46,7 @@ const Categoria = () => {
                     { id: '4', title: 'Carne', items: await getCarnes() },
                     { id: '5', title: 'Massa', items: await getMassas() },
                     { id: '6', title: 'Doce', items: await getDoces() },
-                    { id: '7', title: 'Laticínios', items: await getLaticinios()},
+                    { id: '7', title: 'Laticínios', items: await getLaticinios() },
                     { id: '8', title: 'Limpeza', items: await getLimpeza() },
                     { id: '9', title: 'Casa', items: await getCasa() },
                 ];
@@ -65,7 +66,7 @@ const Categoria = () => {
         setSelectedCategory(categoryId);
     };
 
-    
+
 
     const renderCategoryItems = () => {
         const category = categories.find((cat) => cat.id === selectedCategory);
@@ -74,12 +75,12 @@ const Categoria = () => {
             <FlatList
                 data={category.items}
                 renderItem={({ item }) => (
-                    <Card 
-                        key={item.id} 
-                        title={item.name} 
+                    <Card
+                        key={item.id}
+                        title={item.name}
                         image={item.image || placeholderImage}
-                     />
-                    )}
+                    />
+                )}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContainer}
             />
@@ -138,19 +139,19 @@ const styles = StyleSheet.create({
     },
     selectedCategoryButton: {
         borderBottomWidth: 2,
-        borderBottomColor: "#6E3CBC",
+        borderBottomColor: colors.primary,
     },
     list: {
         gap: 5,
         flexDirection: "row",
     },
     textTitle: {
-        color: "#6E3CBC",
+        color: colors.primary,
         fontSize: 20,
         marginHorizontal: 10,
     },
     selectedCategoryTitle: {
-        color: "#6E3CBC",
+        color: colors.primary,
         fontWeight: "bold",
     },
 });
