@@ -1,76 +1,105 @@
-import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { create } from "zustand";
 
-const STORAGE_KEY = "shopping-list-storage";
-
-export const useShoppingListStore = create((set, get) => ({
+export const useShoppingListStore = create((set) => ({
   shoppingList: [],
 
-  // Carrega a lista do AsyncStorage
-  loadShoppingList: async () => {
-    try {
-      const storage = await AsyncStorage.getItem(STORAGE_KEY);
-      const shoppingList = storage ? JSON.parse(storage) : [];
-      set({ shoppingList });
-    } catch (error) {
-      console.error("Erro ao carregar a lista de compras:", error);
-    }
-  },
+  addProductToList: (product) =>
+    set((state) => {
+      const existingItem = state.shoppingList.find((item) => item.id === product.id);
 
-  // Adiciona ou atualiza um produto na lista
-  addProductToList: async (product) => {
-    const shoppingList = get().shoppingList.map(item => 
-      item.id === product.id
-      ? {...item, quantity: item.quantity + 1}
-      : item
-    );
-
-    const itemExists = shoppingList.some(item => item.id === product.id);
-    if (!itemExists) {
-      shoppingList.push({...product, quantity: 1});
-
-    }
-
-    set({shoppingList});
-
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(shoppingList));
-    } catch (error) {
-      console.error("Erro ao salvar o item:", er);
-      
-    }
-    // const itemIndex = shoppingList.findIndex(item => item.id === product.id);
-
-    // if (itemIndex >= 0) {
-    //   shoppingList[itemIndex] = {
-    //     ...shoppingList[itemIndex],
-    //     quantity: shoppingList[itemIndex].quantity + 1,
-    //   }
-    // } else {
-    //   shoppingList.push({...product, quantity: 1});
-    // }
-    // const existingItem = get().shoppingList.find(item => item.id === product.id);
-  },
-
-  // Remove um produto da lista
-  removeProductFromList: async (id) => {
-    let shoppingList = [...get().shoppingList];
-    const  itemIndex = shoppingList.findIndex(item => item.id === id);
-
-    if (itemIndex >= 0) {
-      const item = shoppingList[itemIndex];
-      if (item.quantity > 1) {
-        shoppingList[itemIndex] = {...item, quantity: item.quantity - 1};
+      if (existingItem) {
+        // Se já existe, aumenta a quantidade
+        return {
+          shoppingList: state.shoppingList.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          ),
+        };
       } else {
-        shoppingList =  shoppingList.filter(item => item.id !== id);
+        // Se não existe, adiciona com quantidade 1
+        return {
+          shoppingList: [...state.shoppingList, { ...product, quantity: 1 }],
+        };
       }
-    }
-    set({shoppingList});
+    }),
 
+  removeProductFromList: (id) =>
+    set((state) => {
+      const existingItem = state.shoppingList.find((item) => item.id === id);
+
+      if (!existingItem) return state;
+
+      if (existingItem.quantity > 1) {
+        // Diminui quantidade
+        return {
+          shoppingList: state.shoppingList.map((item) =>
+            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+          ),
+        };
+      } else {
+        // Remove da lista se quantidade for 1
+        return {
+          shoppingList: state.shoppingList.filter((item) => item.id !== id),
+        };
+      }
+    }),
+
+    loadShoppingList: async () => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(shoppingList));
+      const token = await AsyncStorage.getItem("token");
+      if (!token) throw new Error("Token não encontrado");
+
+      const response = await fetch("https://shop-list-mzfv.onrender.com/list/my-lists", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao carregar listas");
+
+      const data = await response.json();
+
+      const shoppingItems = data.lists?.[0]?.items || [];
+
+      set({ shoppingList: shoppingItems });
     } catch (error) {
-      console.error("Erro ao remover o item:", error);
+      console.error("Erro ao carregar lista:", error);
+      set({ shoppingList: [] });
     }
   },
+
+   removeProductFromApi: async (productId) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) throw new Error("Token não encontrado");
+
+      const listId = get().listId;
+      if (!listId) throw new Error("listId não definido");
+
+      const response = await fetch("https://shop-list-mzfv.onrender.com/list/remove-product", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          listId,
+          productsIds: [productId],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao remover produto");
+      }
+
+      // Após remover, atualize a lista local (carregue novamente)
+      await get().loadShoppingList();
+    } catch (error) {
+      console.error("Erro ao remover produto da API:", error);
+    }
+  },
+
 }));

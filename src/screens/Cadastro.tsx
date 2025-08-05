@@ -1,10 +1,13 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Button from "../components/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import colors from "../util/colors";
+import InputField from "../components/InputField";
+import PasswordInput from "../components/PasswordInput";
+import { registerUser } from "../service/auth.service";
 
 export default function Cadastro() {
     const [name, setName] = useState("");
@@ -15,13 +18,38 @@ export default function Cadastro() {
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
-    const [passwordVisible, setPasswordVisible] = useState(false);
-    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-    const navigation = useNavigation();
 
-    const handleSignUp = () => {
-        navigation.navigate("Shooping");
+    const navigation = useNavigation();
+    const [loading, setLoading] = useState(false);
+
+
+
+    const handleRegister = async () => {
+        console.log("📌 Iniciando registro...");
+        console.log("Dados do formulário:", { name, email, password });
+
+        if (!name || !email || !password) {
+            Alert.alert("Erro", "Preencha todos os campos");
+            console.log("⚠️ Campos obrigatórios faltando!");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const result = await registerUser(name, email, password);
+            console.log("✅ Registro bem-sucedido:", result);
+
+            Alert.alert("Sucesso", "Usuário registrado com sucesso!");
+            navigation.navigate("Shooping");
+        } catch (error) {
+            console.log("❌ Erro ao registrar usuário:", error);
+            Alert.alert("Erro", error.message);
+        } finally {
+            console.log("🔄 Finalizando processo de registro...");
+            setLoading(false);
+        }
     };
+
 
     return (
         <View style={styles.container}>
@@ -31,72 +59,31 @@ export default function Cadastro() {
             />
 
 
-            <View style={[styles.cardInput, nameFocused && styles.cardInputFocused]}>
-                <MaterialCommunityIcons
-                    name="account-outline"
-                    size={24}
-                    color={nameFocused ? "#6E3CBC" : "#AEAEAE"}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nome Completo:"
-                    placeholderTextColor="#AEAEAE"
-                    onChangeText={setName}
-                    value={name}
-                    onFocus={() => setNameFocused(true)}
-                    onBlur={() => setNameFocused(false)}
-                />
-            </View>
 
-            <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
-                <MaterialCommunityIcons
-                    name="email-outline"
-                    size={24}
-                    color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email:"
-                    keyboardType="email-address"
-                    placeholderTextColor="#AEAEAE"
-                    autoCapitalize="none"
-                    onChangeText={setEmail}
-                    value={email}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
-                />
-            </View>
+            <InputField
+                iconName="account-outline"
+                placeholder="Seu e-mail"
+                keyboardType="email-address"
+                value={name}
+                onChangeText={setName}
+            />
 
-            <View style={[styles.cardInput, passwordFocused && styles.cardInputFocused]}>
-                <Ionicons
-                    name="lock-closed-outline"
-                    size={24}
-                    color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Sua senha"
-                    placeholderTextColor="#AEAEAE"
-                    autoCapitalize="none"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!passwordVisible}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
-                />
-                <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                >
-                    <Ionicons
-                        name={passwordVisible ? "eye" : "eye-off"}
-                        size={20}
-                        color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                    />
-                </TouchableOpacity>
-            </View>
+            <InputField
+                iconName="email-outline"
+                placeholder="Seu e-mail"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+            />
+
+            <PasswordInput
+                placeholder="Sua senha"
+                value={password}
+                onChangeText={setPassword}
+            />
 
 
-            <Button title="Cadastrar" style={styles.button} onPress={handleSignUp} />
+            <Button title="Cadastrar" style={styles.button} onPress={handleRegister} disabled={loading} />
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.loginLink}>Já tem uma conta? Faça login</Text>

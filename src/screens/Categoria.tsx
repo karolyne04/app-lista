@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { getFruits } from "../service/fruit.service";
 import Card from "../components/Card";
 
@@ -13,6 +13,7 @@ import { getLimpeza } from "../service/limpeza.service";
 import { getCasa } from "../service/casa.service";
 import { useShoppingListStore } from "../store/useShoppingListStore";
 import colors from "../util/colors";
+import { getCategories } from "../service/list.service";
 
 const placeholderImage = "https://via.placeholder.com/150"; // URL da imagem de placeholder
 
@@ -30,71 +31,62 @@ interface Category {
 
 const Categoria = () => {
     const addProductToList = useShoppingListStore((state) => state.addProductToList);
-
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [categories] = useState([
+        { id: "1", title: "Hortifruti", apiName: "fruits" },
+        { id: "2", title: "Padaria", apiName: "padaria" },
+        { id: "3", title: "Limpeza", apiName: "limpeza" },
+        { id: "4", title: "Carne", apiName: "carne" },
+        { id: "5", title: "Casa", apiName: "casa" },
+        { id: "6", title: "Doce", apiName: "doce" },
+        { id: "7", title: "Laticínios", apiName: "laticinio" },
+        { id: "8", title: "Bebidas", apiName: "bebidas" },
+        { id: "9", title: "Frutas", apiName: "fruits" },
+        { id: "10", title: "Massas", apiName: "massa" },
+        { id: "11", title: "Outros", apiName: "outros" },
+    ]);
+    const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("1");
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Inicializa as categorias sem itens
-                const initialCategories: Category[] = [
-                    { id: '1', title: 'Todos', items: [] },
-                    { id: '2', title: 'Fruta', items: await getFruits() },
-                    { id: '3', title: 'Bebidas', items: await getBebidas() },
-                    { id: '4', title: 'Carne', items: await getCarnes() },
-                    { id: '5', title: 'Massa', items: await getMassas() },
-                    { id: '6', title: 'Doce', items: await getDoces() },
-                    { id: '7', title: 'Laticínios', items: await getLaticinios() },
-                    { id: '8', title: 'Limpeza', items: await getLimpeza() },
-                    { id: '9', title: 'Casa', items: await getCasa() },
-                ];
-
-                setCategories(initialCategories);
-            } catch (error) {
-                console.error("Erro ao buscar item", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+        fetchProducts(categories[0].apiName);
     }, []);
 
-    const handleCategoryPress = (categoryId) => {
+    // Função para buscar produtos da categoria
+    const fetchProducts = async (categoryName) => {
+        setLoading(true);
+        try {
+            const result = await getCategories(categoryName);
+            console.log("✅ Produtos recebidos:", result);
+            setProducts(result);
+        } catch (error) {
+            Alert.alert("Erro", error.message);
+            setProducts([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+    const handleCategoryPress = (categoryId, categoryName) => {
         setSelectedCategory(categoryId);
+        fetchProducts(categoryName);
     };
 
 
 
-    const renderCategoryItems = () => {
-        const category = categories.find((cat) => cat.id === selectedCategory);
-        if (!category) return null;
-        return (
-            <FlatList
-                data={category.items}
-                renderItem={({ item }) => (
-                    <Card
-                        key={item.id}
-                        title={item.name}
-                        image={item.image || placeholderImage}
-                    />
-                )}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContainer}
-            />
-        );
-    };
 
     return (
         <View style={styles.container}>
+            {/* Menu de categorias */}
             <View style={styles.categoryContainer}>
                 <ScrollView horizontal style={styles.list}>
                     {categories.map((category) => (
                         <TouchableOpacity
                             key={category.id}
-                            onPress={() => handleCategoryPress(category.id)}
+                            onPress={() => handleCategoryPress(category.id, category.apiName)}
                             style={[
                                 styles.categoryButton,
                                 selectedCategory === category.id && styles.selectedCategoryButton,
@@ -113,7 +105,24 @@ const Categoria = () => {
                 </ScrollView>
             </View>
 
-            {loading ? <Text>Loading...</Text> : renderCategoryItems()}
+            {/* Lista de produtos */}
+            {loading ? (
+                <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+            ) : (
+                <FlatList
+                    data={products}
+                    renderItem={({ item }) => (
+                        <Card
+                            key={item.id}
+                            id={item.id}
+                            title={item.name}
+                            image={item.image || placeholderImage}
+                        />
+                    )}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContainer}
+                />
+            )}
         </View>
     );
 };
@@ -121,6 +130,7 @@ const Categoria = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        padding: 20,
     },
     categoryContainer: {
         flexDirection: "row",

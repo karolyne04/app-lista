@@ -12,6 +12,8 @@ import Dicas from '../screens/Dicas';
 import RecoverPassword from '../screens/RecoverPassword';
 import UserProfile from '../screens/UserProfile';
 import Historico from '../screens/Historico';
+import ResetPassword from '../screens/ResetPassword';
+import { TabRoutes } from './tabs.routes';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -19,26 +21,13 @@ export function AppRoutes() {
     return (
         <Navigator initialRouteName="Categories">
             <Screen name='Login' component={Login} options={{ headerShown: false }} />
-            <Screen name='Shooping' component={Shooping}
-                options={{
-                    title: "Home",
-                    headerTitleAlign: "center",
-                    headerTitleStyle: {
-                        fontSize: 20,
-                        fontWeight: "bold",
-                        color: "#6E3CBC"
-                    },
-                    headerBackTitleVisible: false,
-                    headerBackImage: () => (
-                        <Ionicons
-                            name="chevron-back"
-                            size={24}
-                            color="#6E3CBC"
-                            style={styles.icon}
-                        />
-                    )
-                }}
+
+            <Screen
+                name="Main"
+                component={TabRoutes}
+                options={{ headerShown: false }}
             />
+
             <Screen name='Categoria' component={Categoria}
                 options={{
                     title: "Categoria",
@@ -86,21 +75,7 @@ export function AppRoutes() {
                     )
                 }}
             />
-            <Screen name="Dicas" component={Dicas}
-                options={{
-                    title: "Dicas",
-                    headerTitleAlign: "center",
-                    headerBackTitleVisible: false,
-                    headerBackImage: () => (
-                        <Ionicons
-                            name="chevron-back"
-                            size={24}
-                            color="#6E3CBC"
-                            style={styles.icon}
-                        />
-                    )
-                }}
-            />
+
             <Screen name="RecoverPassword" component={RecoverPassword}
                 options={{
                     title: "Recuperar Senha",
@@ -116,24 +91,11 @@ export function AppRoutes() {
                     )
                 }}
             />
-            <Screen name="UserProfile" component={UserProfile}
+
+
+            <Screen name="ResetPassword" component={ResetPassword}
                 options={{
-                    title: "Perfil",
-                    headerTitleAlign: "center",
-                    headerBackTitleVisible: false,
-                    headerBackImage: () => (
-                        <Ionicons
-                            name="chevron-back"
-                            size={24}
-                            color="#6E3CBC"
-                            style={styles.icon}
-                        />
-                    )
-                }}
-            />
-            <Screen name="Historico" component={Historico}
-                options={{
-                    title: "Histórico",
+                    title: "Redefinir Senha",
                     headerTitleAlign: "center",
                     headerBackTitleVisible: false,
                     headerBackImage: () => (

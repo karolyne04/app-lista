@@ -18,14 +18,7 @@ export default function UserProfile() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Image
-                source={{ uri: "https://i.pravatar.cc/150?img=3" }}
-                style={styles.avatar}
-            />
 
-            <TouchableOpacity style={styles.changePhoto}>
-                <Text style={styles.changePhotoText}>Alterar Foto</Text>
-            </TouchableOpacity>
 
             {/* Nome */}
             <View style={styles.cardInput}>
@@ -49,16 +42,7 @@ export default function UserProfile() {
                 />
             </View>
 
-            {/* Telefone */}
-            <View style={styles.cardInput}>
-                <Ionicons name="call-outline" size={22} color="#6E3CBC" />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Telefone"
-                    value={phone}
-                    onChangeText={setPhone}
-                />
-            </View>
+
 
             {/* Alterar Senha */}
             <View style={styles.cardInput}>

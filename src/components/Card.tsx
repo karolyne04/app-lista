@@ -1,7 +1,9 @@
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Entypo, FontAwesome6 } from "@expo/vector-icons";
 import { useShoppingListStore } from "../store/useShoppingListStore";
+import { addProductsToList } from "../service/shoppingList.service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface CardProps {
   id: string;
@@ -14,20 +16,55 @@ export default function Card({ id, title, image }: CardProps) {
   const addProductToList = useShoppingListStore((state) => state.addProductToList);
   const removeProductFromList = useShoppingListStore((state) => state.removeProductFromList);
 
-  const itemInList = shoppingList.find(item => item.id === id);
+  const itemInList = shoppingList.find((item) => item.id === id);
 
-  const handleAddProduct = () => {
-    addProductToList({
-      id,
-      title,
-      image,
-    });
+  const handleAddProduct = async () => {
+    addProductToList({ id, title, image });
+
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) throw new Error("Token não encontrado");
+
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      const userId = decoded?.id;
+      if (!userId) throw new Error("User ID não encontrado");
+
+      let listId = await AsyncStorage.getItem("listId");
+
+      const payload = {
+        userId,
+        items: [
+          {
+            idProduct: id.toString(),
+            quantity: 1,
+          },
+        ],
+      };
+
+      // Se já existe lista criada, inclui o listId
+      if (listId) {
+        payload["listId"] = listId;
+      }
+
+      console.log("📤 Enviando itens da lista:", payload);
+
+      const response = await addProductsToList(payload);
+
+      // Se a API criar uma nova lista, salvar o listId retornado
+      if (response?.listId) {
+        await AsyncStorage.setItem("listId", response.listId);
+      }
+
+      console.log("✅ Produto adicionado no servidor");
+    } catch (error) {
+      console.log("❌ Erro ao salvar produto na API:", error);
+      Alert.alert("Erro", "Não foi possível salvar no servidor");
+    }
   };
 
   const handleRemoveProduct = () => {
-    removeProductFromList(id); // Remove o item caso a quantidade chegue a 1
-  }
-
+    removeProductFromList(id);
+  };
 
   return (
     <View style={styles.card}>
@@ -38,7 +75,6 @@ export default function Card({ id, title, image }: CardProps) {
           <Entypo style={styles.text} name="plus" size={24} color="black" />
         </TouchableOpacity>
 
-
         <TouchableOpacity onPress={handleRemoveProduct}>
           <FontAwesome6 style={styles.text} name="minus" size={24} color="black" />
         </TouchableOpacity>
@@ -46,7 +82,6 @@ export default function Card({ id, title, image }: CardProps) {
 
       <View style={styles.info}>
         <Text style={styles.quantity}>Q: {itemInList ? itemInList.quantity : 0}</Text>
-
       </View>
     </View>
   );
@@ -94,14 +129,8 @@ const styles = StyleSheet.create({
     color: "#6E3CBC",
   },
   info: {
-    // marginTop: 5,
     gap: 3,
     flexDirection: "column",
-    alignItems: "flex-start", // Centraliza o texto abaixo dos botões
-  },
-  price: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
+    alignItems: "flex-start",
   },
 });

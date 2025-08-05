@@ -1,119 +1,143 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Input from "../components/Input";
+import {
+    Alert,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+
 import Button from "../components/Button";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import Categoria from "./Categoria";
+
 import CustomAlert from "../components/CustomAlert";
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform } from "react-native";
 import colors from "../util/colors";
+import PasswordInput from "../components/PasswordInput";
+import InputField from "../components/InputField";
+import { loginUser } from "../service/auth.service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [emailFocused, setEmailFocused] = useState(false);
-    const [passwordFocused, setPasswordFocused] = useState(false);
-    const [passwordVisible, setPasswordVisible] = useState(false);
+
     const navigation = useNavigation();
     const [alertType, setAlertType] = useState<"success" | "error" | null>(null);
     const [alertMessage, setAlertMessage] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = () => {
-        // if (email === "teste@example.com" && password === "123456") {
-        //     setAlertType("success");
-        //     setAlertMessage("Login realizado com sucesso!");
-        navigation.navigate('Shooping');
+    const handleLogin = async () => {
+        console.log("📌 Iniciando login...");
+        console.log("Dados do formulário:", { email, password });
 
-        // } else {
-        //     setAlertType("error");
-        //     setAlertMessage("E-mail ou senha inválidos. Tente novamente.")
-        // }
-        // setShowAlert(true);
+        if (!email || !password) {
+            Alert.alert("Erro", "Preencha todos os campos");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const result = await loginUser(email, password);
+            console.log("✅ Login bem-sucedido:", result);
+
+            // ✅ Salvar token
+            if (result.access_token) {
+                await AsyncStorage.setItem("token", result.access_token);
+                console.log("🔑 Token salvo com sucesso:", result.access_token);
+
+                // ✅ Decodificar token para pegar o userId
+                const base64Url = result.access_token.split('.')[1];
+                const decodedPayload = JSON.parse(atob(base64Url));
+
+                if (decodedPayload?.id) {
+                    await AsyncStorage.setItem("userId", decodedPayload.id);
+                    console.log("👤 UserID salvo:", decodedPayload.id);
+                } else {
+                    console.log("⚠️ Nenhum userId encontrado no token.");
+                }
+            } else {
+                console.log("⚠️ Nenhum token recebido da API");
+            }
+
+            // 🔎 Confirmar armazenamento
+            const savedToken = await AsyncStorage.getItem("token");
+            const savedUserId = await AsyncStorage.getItem("userId");
+            console.log("🔎 Token armazenado:", savedToken);
+            console.log("🔎 UserID armazenado:", savedUserId);
+
+            // ✅ Navegar para a tela principal
+            // navigation.navigate("Shooping");
+            navigation.replace("Main");
+
+
+        } catch (error: any) {
+            console.log("❌ Erro ao fazer login:", error);
+
+            const msg = error.response?.data?.message
+                || error.message
+                || "Erro desconhecido. Tente novamente.";
+            Alert.alert("Erro", msg);
+        } finally {
+            setLoading(false);
+        }
     };
     const handleCreate = () => {
-        navigation.navigate('Cadastro');
-    }
+        navigation.navigate("Cadastro");
+    };
 
     return (
         <KeyboardAvoidingView
             style={styles.continer}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-
-
-            <View style={[styles.continer, { pointerEvents: 'box-none' }]}>
+            <View style={[styles.continer, { pointerEvents: "box-none" }]}>
                 <Image
                     source={require("../../assets/Preview.png")}
                     style={styles.logo}
                 />
-                {/* <Text style={styles.title}>Login</Text> */}
-                <View style={[styles.cardInput, emailFocused && styles.cardInputFocused]}>
-                    <MaterialCommunityIcons
-                        name="email-outline"
-                        size={24}
-                        color={emailFocused ? "#6E3CBC" : "#AEAEAE"}
+                <InputField
+                    iconName="email-outline"
+                    placeholder="Seu e-mail"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+
+                <PasswordInput
+                    placeholder="Sua senha"
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                {showAlert && (
+                    <CustomAlert
+                        type={alertType}
+                        message={alertMessage}
+                        onClose={() => setShowAlert(false)}
                     />
-                    <TextInput
-                        ref={emailRef}
-                        style={styles.input}
-                        placeholder="Email:"
-                        keyboardType="email-address"
-                        placeholderTextColor="#AEAEAE"
-                        autoCapitalize="none"
-                        onChangeText={setEmail}
-                        value={email}
-                        onFocus={() => setEmailFocused(true)}
-                        onBlur={() => setEmailFocused(false)}
+                )}
 
-                    />
-                </View>
+                <Button title={loading ? "Entrando..." : "Entrar"} style={styles.button} onPress={handleLogin} disabled={loading} />
+                <Text style={styles.forgotPassword} onPress={handleCreate}>
+                    Criar conta
+                </Text>
 
-                <View style={[styles.cardInput, passwordFocused && styles.cardInputFocused]}>
-                    <Ionicons
-                        name="lock-closed-outline"
-                        size={24}
-                        color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                    />
-                    <TextInput
-                        ref={passwordRef}
-                        style={styles.input}
-                        placeholder="Sua senha"
-                        textContentType="password"
-
-                        autoCapitalize="none"
-                        placeholderTextColor="#AEAEAE"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry={!passwordVisible}
-                        onFocus={() => setPasswordFocused(true)}
-                        onBlur={() => setPasswordFocused(false)}
-                    />
-
-                    <TouchableOpacity
-                        onPress={() => setPasswordVisible(!passwordVisible)}
-                    >
-                        <Ionicons
-                            name={passwordVisible ? "eye" : "eye-off"}
-                            size={20}
-                            color={passwordFocused ? "#6E3CBC" : "#AEAEAE"}
-                        />
-                    </TouchableOpacity>
-                </View>
-                {showAlert && <CustomAlert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
-
-                <Button title="Entrar" style={styles.button} onPress={handleLogin} />
-                <Text style={styles.forgotPassword} onPress={handleCreate}>Criar conta</Text>
-
-                <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
+                <Text
+                    style={styles.forgotPassword}
+                    onPress={() => navigation.navigate("RecoverPassword")}
+                >
+                    Esqueceu sua senha?
+                </Text>
             </View>
         </KeyboardAvoidingView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -147,23 +171,15 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         alignItems: "center",
         backgroundColor: colors.background,
+    },
 
-    },
-    cardInputFocused: {
-        borderColor: colors.primary,
-    },
     button: {
-        marginTop: 16
-    },
-    input: {
-        flex: 1,
-        height: 40,
-        marginLeft: 10,
+        marginTop: 16,
     },
     forgotPassword: {
         color: colors.primary,
         fontSize: 14,
-        textDecorationLine: 'underline',
+        textDecorationLine: "underline",
         marginTop: 16,
     },
-})
+});

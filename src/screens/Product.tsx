@@ -20,8 +20,8 @@ const products = {
   ],
 };
 
-const ProductScreen = ( ) => {
-//   const { category } = route.params;
+const ProductScreen = () => {
+  //   const { category } = route.params;
   const categoryProducts = useState([]);
 
   return (

@@ -1,11 +1,11 @@
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Button from "../components/Button";
-import Nav from "../components/Nav";
+
 import Categoria from "./Categoria";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Shooping() {
-    const navigation = useNavigation();
+	const navigation = useNavigation();
 
 	const handleSuggested = () => {
 		navigation.navigate("Categoria");
@@ -26,13 +26,13 @@ export default function Shooping() {
 					<Text style={styles.textName}>Olá,</Text>
 					<Text style={styles.textSub}>Organize suas listas de compras</Text>
 					<Button title="Lista sugerida" onPress={handleSuggested} />
-					<Button title="Ver Lista de compras" onPress={handleList}/>
-					
-					
+					<Button title="Ver Lista de compras" onPress={handleList} />
+
+
 				</View>
 			</ImageBackground>
-			
-			<Nav />
+
+
 		</View>
 	);
 }
@@ -40,7 +40,7 @@ export default function Shooping() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		padding: 12,
+
 	},
 	background: {
 		flex: 1,
