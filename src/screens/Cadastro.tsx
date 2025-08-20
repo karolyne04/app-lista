@@ -8,44 +8,53 @@ import colors from "../util/colors";
 import InputField from "../components/InputField";
 import PasswordInput from "../components/PasswordInput";
 import { registerUser } from "../service/auth.service";
+import CustomAlert from "../components/CustomAlert";
 
 export default function Cadastro() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [nameFocused, setNameFocused] = useState(false);
-    const [emailFocused, setEmailFocused] = useState(false);
-    const [passwordFocused, setPasswordFocused] = useState(false);
-    const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
+    const [alertVisible, setAlertVisible] = useState(false);
+
+
+    // const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState<"success" | "error">("success");
+    const [alertMessage, setAlertMessage] = useState("");
 
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);
 
+    const showAlert = (type: "success" | "error", message: string, onClose?: () => void) => {
+        setAlertType(type);
+        setAlertMessage(message);
+        setAlertVisible(true);
 
+        // fecha sozinho em 3 segundos
+        setTimeout(() => {
+            setAlertVisible(false);
+            if (onClose) onClose(); // chama função de callback após fechar
+        }, 3000);
+    };
 
     const handleRegister = async () => {
-        console.log("📌 Iniciando registro...");
-        console.log("Dados do formulário:", { name, email, password });
 
         if (!name || !email || !password) {
-            Alert.alert("Erro", "Preencha todos os campos");
-            console.log("⚠️ Campos obrigatórios faltando!");
+            showAlert("error", "Preencha todos os campos.");
             return;
         }
 
         setLoading(true);
         try {
             const result = await registerUser(name, email, password);
-            console.log("✅ Registro bem-sucedido:", result);
 
-            Alert.alert("Sucesso", "Usuário registrado com sucesso!");
-            navigation.navigate("Shooping");
+            showAlert("success", "Usuário registrado com sucesso!");
+            navigation.navigate("Main");
+
+
         } catch (error) {
-            console.log("❌ Erro ao registrar usuário:", error);
-            Alert.alert("Erro", error.message);
+            showAlert("error", "Não foi possível realizar o cadastro.");
         } finally {
-            console.log("🔄 Finalizando processo de registro...");
+
             setLoading(false);
         }
     };
@@ -54,7 +63,7 @@ export default function Cadastro() {
     return (
         <View style={styles.container}>
             <Image
-                source={require("../../assets/Preview.png")}
+                source={require("../../assets/logo.png")}
                 style={styles.logo}
             />
 
@@ -88,6 +97,13 @@ export default function Cadastro() {
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.loginLink}>Já tem uma conta? Faça login</Text>
             </TouchableOpacity>
+            {alertVisible && (
+                <CustomAlert
+                    type={alertType} // "success" ou "error"
+                    message={alertMessage}
+                    onClose={() => setAlertVisible(false)}
+                />
+            )}
         </View>
     );
 }

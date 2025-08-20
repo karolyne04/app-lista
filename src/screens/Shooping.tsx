@@ -7,6 +7,10 @@ import { useNavigation } from "@react-navigation/native";
 export default function Shooping() {
 	const navigation = useNavigation();
 
+	const handleCreate = () => {
+		navigation.navigate("CreateList");
+	};
+
 	const handleSuggested = () => {
 		navigation.navigate("Categoria");
 	};
@@ -27,6 +31,7 @@ export default function Shooping() {
 					<Text style={styles.textSub}>Organize suas listas de compras</Text>
 					<Button title="Lista sugerida" onPress={handleSuggested} />
 					<Button title="Ver Lista de compras" onPress={handleList} />
+					<Button title="Criar nova lista" onPress={handleCreate} />
 
 
 				</View>

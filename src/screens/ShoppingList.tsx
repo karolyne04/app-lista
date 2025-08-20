@@ -4,84 +4,60 @@ import { View, Text, FlatList, Image, StyleSheet, Button, TouchableOpacity } fro
 import colors from "../util/colors";
 import { getShoppingList, removeProductsFromList } from "../service/shoppingList.service";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import CustomAlert from "../components/CustomAlert";
 export default function ShoppingList() {
   const [shoppingList, setShoppingList] = useState([]);
   const [listId, setListId] = useState(null);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const lists = await getShoppingList();
-  //       console.log("✅ Listas carregadas do servidor:", JSON.stringify(lists, null, 2));
-
-  //       if (lists.length > 0) {
-  //         setListId(lists[0].id);
-
-  //         // 🔹 Combina items com Product
-  //         const combinedItems = lists[0].items.map(item => {
-  //           const productInfo = lists[0].Product.find(p => p.id === item.idProduct) || {};
-  //           return {
-  //             ...item,
-  //             name: productInfo.name || "Produto sem nome",
-  //             image: productInfo.image || null,
-  //           };
-  //         });
-
-  //         setShoppingList(combinedItems);
-  //       }
-  //     } catch (error) {
-  //       console.log("Erro ao carregar lista:", error);
-  //     }
-  //   })();
-  // }, []);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
+  const [alertMessage, setAlertMessage] = useState("");
+  const showCustomAlert = (type: "success" | "error", message: string) => {
+    setAlertType(type);
+    setAlertMessage(message);
+    setShowAlert(true);
+  };
 
   useEffect(() => {
     (async () => {
       try {
         const lists = await getShoppingList();
         console.log("✅ Listas carregadas do servidor:", JSON.stringify(lists, null, 2));
+        if (!lists || lists.length === 0) {
+          setShoppingList([]);
+          setListId(null);
+          showCustomAlert("error", "Nenhuma lista encontrada.");
+          return;
+        }
+        // Pega a primeira lista ou ajusta conforme sua regra
+        const firstList = lists[0];
+        setListId(firstList.id || firstList.listId || null);
 
-        // Combina todos os itens de todas as listas
-        const allItems = lists.flatMap(list =>
-          list.items.map(item => {
-            const productInfo = list.Product.find(p => p.id === item.idProduct) || {};
-            return {
-              idProduct: item.idProduct,
-              quantity: item.quantity,
-              name: productInfo.name || "Produto sem nome",
-              image: productInfo.image || null,
-            };
-          })
-        );
-
-        // 🔹 Agrupar produtos iguais somando a quantidade
-        const groupedItems = Object.values(
-          allItems.reduce((acc, item) => {
-            if (!acc[item.idProduct]) {
-              acc[item.idProduct] = { ...item };
-            } else {
-              acc[item.idProduct].quantity += item.quantity;
-            }
-            return acc;
-          }, {})
-        );
-
-        setShoppingList(groupedItems);
-        setListId(lists[0]?.id || null);
+        const allItems = (firstList.items || []).map(item => {
+          // Evita erro se Product não existir
+          const productInfo = (firstList.Product || []).find(p => p.id === item.idProduct) || {};
+          return {
+            idProduct: item.idProduct,
+            quantity: item.quantity || 1,
+            name: productInfo.name || "Produto sem nome",
+            image: productInfo.image || null,
+          };
+        });
+        setShoppingList(allItems);
       } catch (error) {
-        console.log("Erro ao carregar lista:", error);
+        showCustomAlert("error", "Erro ao carregar lista.");
+        setShoppingList([]);
+        setListId(null);
       }
     })();
   }, []);
+
   const handleRemoveItem = async (productId) => {
     try {
       if (!listId) {
-        console.warn("ID da lista não encontrado");
+        showCustomAlert("error", "ID da lista não encontrado");
         return;
       }
-
       await removeProductsFromList({ listId, productsIds: [productId] });
-
       // Atualiza a lista após remover
       const updatedLists = await getShoppingList();
       if (updatedLists.length > 0) {
@@ -98,7 +74,7 @@ export default function ShoppingList() {
         setShoppingList([]);
       }
     } catch (err) {
-      console.log("Erro ao remover produto:", err);
+      showCustomAlert("error", "Erro ao remover produto");
     }
   };
 
@@ -128,6 +104,13 @@ export default function ShoppingList() {
         keyExtractor={(item) => item.idProduct}
         ListEmptyComponent={<Text>Lista vazia</Text>}
       />
+      {showAlert && (
+        <CustomAlert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
     </View>
   );
 }

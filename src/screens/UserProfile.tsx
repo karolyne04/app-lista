@@ -1,24 +1,94 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import colors from "../util/colors";
+import { getUserInfo, updateUserInfo } from "../service/auth.service"; // updateUserInfo a gente cria
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomAlert from "../components/CustomAlert";
 
 export default function UserProfile() {
-    const [name, setName] = useState("Carolyne Ferreira");
-    const [email, setEmail] = useState("carol@example.com");
-    const [phone, setPhone] = useState("(21) 99999-9999");
+    const [userData, setUserData] = useState<any>(null);
+    const [name, setName] = useState('');
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState<"success" | "error">("success");
+    const [alertMessage, setAlertMessage] = useState("");
 
-    const handleSave = () => {
-        // lógica para salvar alterações
-        console.log("Perfil atualizado");
+    const showCustomAlert = (type: "success" | "error", message: string) => {
+        setAlertType(type);
+        setAlertMessage(message);
+        setShowAlert(true);
     };
 
+
+    useEffect(() => {
+        let isMounted = true;
+        async function fetchUserData() {
+            try {
+                setLoading(true);
+                const data = await getUserInfo();
+                if (isMounted) {
+                    setUserData(data);
+                    setName(data.name); // inicializa o estado local do nome
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do usuário", error);
+                navigation.replace("Login"); // se token inválido, volta pro login
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        }
+        fetchUserData();
+        return () => { isMounted = false };
+    }, []);
+
+    if (loading) {
+        return <ActivityIndicator size="large" color={colors.primary} />;
+    }
+
+    const handleSave = async () => {
+        if (!name.trim()) {
+            showCustomAlert("error", "O nome não pode estar vazio");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) throw new Error('Usuário não autenticado');
+
+            const updatedUser = await updateUserInfo(token, { name });
+            setUserData(updatedUser);
+
+            showCustomAlert("success", "Perfil atualizado com sucesso!");
+        } catch (error: any) {
+            showCustomAlert("error", error.message || "Erro ao atualizar perfil");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!userData) {
+        return <ActivityIndicator size="large" color={colors.primary} />;
+    }
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem("token");
+            showCustomAlert("success", "Logout realizado com sucesso!");
+            navigation.replace("Login");
+        } catch (error) {
+            console.error("Erro ao sair da conta:", error);
+            showCustomAlert("error", "Não foi possível sair da conta");
+        }
+    };
     return (
         <ScrollView contentContainerStyle={styles.container}>
-
 
             {/* Nome */}
             <View style={styles.cardInput}>
@@ -37,12 +107,10 @@ export default function UserProfile() {
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
-                    value={email}
+                    value={userData.email}
                     editable={false}
                 />
             </View>
-
-
 
             {/* Alterar Senha */}
             <View style={styles.cardInput}>
@@ -59,11 +127,18 @@ export default function UserProfile() {
                 </TouchableOpacity>
             </View>
 
-            <Button title="Salvar Alterações" style={styles.button} onPress={handleSave} />
+            <Button title={loading ? "Salvando..." : "Salvar Alterações"} style={styles.button} onPress={handleSave} disabled={loading} />
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout}>
                 <Text style={styles.logout}>Sair da Conta</Text>
             </TouchableOpacity>
+            {showAlert && (
+                <CustomAlert
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setShowAlert(false)}
+                />
+            )}
         </ScrollView>
     );
 }
@@ -75,19 +150,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 20,
         backgroundColor: colors.background,
-    },
-    avatar: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        marginBottom: 10,
-    },
-    changePhoto: {
-        marginBottom: 20,
-    },
-    changePhotoText: {
-        color: colors.primary,
-        textDecorationLine: "underline",
     },
     cardInput: {
         width: 350,

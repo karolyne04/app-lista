@@ -1,26 +1,46 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useShoppingListStore } from "../store/useShoppingListStore";
+import { getShoppingList } from "../service/shoppingList.service";
 
 export default function Historico() {
     const navigation = useNavigation();
+    const [historico, setHistorico] = useState([]);
 
-    // Dados fictícios para simular histórico
-    const [historico, setHistorico] = useState([
-        { id: "1", nome: "Compras do mês", data: "28/07/2025", itens: 15 },
-        { id: "2", nome: "Festa de aniversário", data: "15/07/2025", itens: 8 },
-        { id: "3", nome: "Compras semanais", data: "05/07/2025", itens: 12 },
-    ]);
+    useEffect(() => {
+        (async () => {
+            try {
+                const lists = await getShoppingList();
+                const mapped = lists.map((list) => ({
+                    id: list.id || list.listId,
+                    nome: list.name || "Sem nome",  // 👈 pega o campo name do backend
+                    data: list.createdAt
+                        ? new Date(list.createdAt).toLocaleDateString("pt-BR")
+                        : "01/01/2025",
+                    itens: list.items?.length || 0,
+                    items: list.items || [],
+                }));
+                setHistorico(mapped);
+            } catch (error) {
+                console.log("Erro ao carregar histórico:", error);
+            }
+        })();
+    }, []);
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate("DetalhesHistorico", { id: item.id })}
+            onPress={() => navigation.navigate("DetalhesHistorico", { lista: item })}
         >
             <View style={styles.info}>
                 <Text style={styles.title}>{item.nome}</Text>
                 <Text style={styles.subtitle}>{item.data} • {item.itens} itens</Text>
+                <Text style={styles.productsPreview}>
+                    {item.items.slice(0, 3).map(p => p.title).join(", ")}
+                    {item.items.length > 3 ? ", ..." : ""}
+                </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#6E3CBC" />
         </TouchableOpacity>
@@ -42,6 +62,7 @@ export default function Historico() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

@@ -34,61 +34,45 @@ export default function Login() {
 
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = async () => {
-        console.log("📌 Iniciando login...");
-        console.log("Dados do formulário:", { email, password });
 
+    const showCustomAlert = (type, message) => {
+        setAlertType(type);
+        setAlertMessage(message);
+        setShowAlert(true);
+    };
+    const handleLogin = async () => {
         if (!email || !password) {
-            Alert.alert("Erro", "Preencha todos os campos");
+            showCustomAlert("error", "Preencha todos os campos");
             return;
         }
 
         setLoading(true);
         try {
             const result = await loginUser(email, password);
-            console.log("✅ Login bem-sucedido:", result);
 
-            // ✅ Salvar token
             if (result.access_token) {
-                await AsyncStorage.setItem("token", result.access_token);
-                console.log("🔑 Token salvo com sucesso:", result.access_token);
+                const token = result.access_token;
 
-                // ✅ Decodificar token para pegar o userId
-                const base64Url = result.access_token.split('.')[1];
-                const decodedPayload = JSON.parse(atob(base64Url));
+                // Decodifica payload do JWT
+                const payload = JSON.parse(atob(token.split(".")[1]));
 
-                if (decodedPayload?.id) {
-                    await AsyncStorage.setItem("userId", decodedPayload.id);
-                    console.log("👤 UserID salvo:", decodedPayload.id);
-                } else {
-                    console.log("⚠️ Nenhum userId encontrado no token.");
-                }
+                // Salva no AsyncStorage
+                await AsyncStorage.setItem("token", token);
+                await AsyncStorage.setItem("userId", payload.id);
+
+                console.log("✅ Login bem-sucedido, userId salvo:", payload.id);
+
+                navigation.replace("Main");
             } else {
-                console.log("⚠️ Nenhum token recebido da API");
+                showCustomAlert("error", "Token não recebido do servidor");
             }
-
-            // 🔎 Confirmar armazenamento
-            const savedToken = await AsyncStorage.getItem("token");
-            const savedUserId = await AsyncStorage.getItem("userId");
-            console.log("🔎 Token armazenado:", savedToken);
-            console.log("🔎 UserID armazenado:", savedUserId);
-
-            // ✅ Navegar para a tela principal
-            // navigation.navigate("Shooping");
-            navigation.replace("Main");
-
-
         } catch (error: any) {
-            console.log("❌ Erro ao fazer login:", error);
-
-            const msg = error.response?.data?.message
-                || error.message
-                || "Erro desconhecido. Tente novamente.";
-            Alert.alert("Erro", msg);
+            showCustomAlert("error", error.message || "Erro desconhecido");
         } finally {
             setLoading(false);
         }
     };
+
     const handleCreate = () => {
         navigation.navigate("Cadastro");
     };
@@ -100,7 +84,7 @@ export default function Login() {
         >
             <View style={[styles.continer, { pointerEvents: "box-none" }]}>
                 <Image
-                    source={require("../../assets/Preview.png")}
+                    source={require("../../assets/logo.png")}
                     style={styles.logo}
                 />
                 <InputField
@@ -152,6 +136,7 @@ const styles = StyleSheet.create({
     logo: {
         width: 150,
         height: 150,
+
     },
     title: {
         fontSize: 32,

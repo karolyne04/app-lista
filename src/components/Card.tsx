@@ -1,69 +1,77 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Entypo, FontAwesome6 } from "@expo/vector-icons";
 import { useShoppingListStore } from "../store/useShoppingListStore";
 import { addProductsToList } from "../service/shoppingList.service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomAlert from "./CustomAlert";
+
+// base-64 decode (caso não esteja importado)
+// import { decode as atob } from "base-64";
 
 interface CardProps {
   id: string;
   title: string;
   image: string;
+  category?: string;
 }
 
-export default function Card({ id, title, image }: CardProps) {
+export default function Card({ id, title, image, category }: CardProps) {
   const shoppingList = useShoppingListStore((state) => state.shoppingList);
   const addProductToList = useShoppingListStore((state) => state.addProductToList);
   const removeProductFromList = useShoppingListStore((state) => state.removeProductFromList);
 
   const itemInList = shoppingList.find((item) => item.id === id);
+  const [alertData, setAlertData] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+
+  useEffect(() => {
+    if (alertData) {
+      const timer = setTimeout(() => {
+        setAlertData(null);
+      }, 3000); // fecha após 3 segundos
+
+      return () => clearTimeout(timer); // limpa o timer se o alerta mudar antes de 3s
+    }
+  }, [alertData]);
   const handleAddProduct = async () => {
-    addProductToList({ id, title, image });
+    addProductToList({ id, title, image }); // Atualiza Zustand local
 
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) throw new Error("Token não encontrado");
 
+      // Decodifica token para pegar userId (caso precise)
       const decoded = JSON.parse(atob(token.split(".")[1]));
       const userId = decoded?.id;
       if (!userId) throw new Error("User ID não encontrado");
 
-      let listId = await AsyncStorage.getItem("listId");
+      const listId = await AsyncStorage.getItem("listId");
+      const listName = await AsyncStorage.getItem("listName") || "Minha Lista de Compras";
 
-      const payload = {
+      if (!listId) throw new Error("List ID não encontrado");
+
+      // Agora enviamos o produto como array de objetos Product
+      const response = await addProductsToList({
+        listId,
+        listName,
         userId,
-        items: [
-          {
-            idProduct: id.toString(),
-            quantity: 1,
-          },
-        ],
-      };
+        products: [{ id, name: title, image }], // formato correto da nova função
+        defaultQuantity: 1,
+      });
 
-      // Se já existe lista criada, inclui o listId
-      if (listId) {
-        payload["listId"] = listId;
-      }
 
-      console.log("📤 Enviando itens da lista:", payload);
-
-      const response = await addProductsToList(payload);
-
-      // Se a API criar uma nova lista, salvar o listId retornado
-      if (response?.listId) {
-        await AsyncStorage.setItem("listId", response.listId);
-      }
-
-      console.log("✅ Produto adicionado no servidor");
+      setAlertData({ type: "success", message: `${title} adicionado à lista!` });
     } catch (error) {
-      console.log("❌ Erro ao salvar produto na API:", error);
-      Alert.alert("Erro", "Não foi possível salvar no servidor");
+
+      setAlertData({ type: "error", message: "Erro ao adicionar produto à lista." });
     }
   };
 
+
   const handleRemoveProduct = () => {
     removeProductFromList(id);
+    setAlertData({ type: "success", message: `${title} removido da lista!` });
   };
 
   return (
@@ -83,6 +91,13 @@ export default function Card({ id, title, image }: CardProps) {
       <View style={styles.info}>
         <Text style={styles.quantity}>Q: {itemInList ? itemInList.quantity : 0}</Text>
       </View>
+      {alertData && (
+        <CustomAlert
+          type={alertData.type}
+          message={alertData.message}
+          onClose={() => setAlertData(null)} // fecha ao clicar no botão
+        />
+      )}
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState, useRef } from "react";
 import Button from "../components/Button";
@@ -50,6 +50,11 @@ export default function RecoverPassword() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
+            <Image
+                source={require("../../assets/logo.png")}
+                style={styles.image}
+                resizeMode="contain"
+            />
 
             <Text style={styles.subtitle}>
                 Digite o e-mail cadastrado para receber as instruções de redefinição.
@@ -97,6 +102,11 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: colors.primary,
         marginBottom: 10,
+    },
+    image: {
+        width: 150,
+        height: 150,
+
     },
     subtitle: {
         fontSize: 14,

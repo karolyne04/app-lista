@@ -3,17 +3,10 @@ import { ActivityIndicator, Alert, FlatList, ScrollView, StyleSheet, Text, Touch
 import { getFruits } from "../service/fruit.service";
 import Card from "../components/Card";
 
-import { searchFoods } from "../service/dados.service";
-import { getBebidas } from "../service/bebida.service";
-import { getCarnes } from "../service/carne.service";
-import { getMassas, massas } from "../service/massa.service";
-import { getDoces } from "../service/doce.service";
-import { getLaticinios } from "../service/laticinios.service";
-import { getLimpeza } from "../service/limpeza.service";
-import { getCasa } from "../service/casa.service";
 import { useShoppingListStore } from "../store/useShoppingListStore";
 import colors from "../util/colors";
 import { getCategories } from "../service/list.service";
+import CustomAlert from "../components/CustomAlert";
 
 const placeholderImage = "https://via.placeholder.com/150"; // URL da imagem de placeholder
 
@@ -29,7 +22,11 @@ interface Category {
     items: Item[];
 }
 
-const Categoria = () => {
+const Categoria = ({ route, navigation }) => {
+    // const { listId } = route.params;
+    const { listId } = route.params || {};
+    const [items, setItems] = useState([]);
+
     const addProductToList = useShoppingListStore((state) => state.addProductToList);
     const [categories] = useState([
         { id: "1", title: "Hortifruti", apiName: "fruits" },
@@ -47,6 +44,16 @@ const Categoria = () => {
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("1");
     const [loading, setLoading] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState<"success" | "error">("error");
+    const [alertMessage, setAlertMessage] = useState("");
+
+    const showCustomAlert = (type: "success" | "error", message: string) => {
+        setAlertType(type);
+        setAlertMessage(message);
+        setShowAlert(true);
+    };
+
 
 
     useEffect(() => {
@@ -61,7 +68,8 @@ const Categoria = () => {
             console.log("✅ Produtos recebidos:", result);
             setProducts(result);
         } catch (error) {
-            Alert.alert("Erro", error.message);
+
+            showCustomAlert("error", error.message || "Erro ao carregar produtos");
             setProducts([]);
         } finally {
             setLoading(false);
@@ -73,6 +81,8 @@ const Categoria = () => {
     const handleCategoryPress = (categoryId, categoryName) => {
         setSelectedCategory(categoryId);
         fetchProducts(categoryName);
+
+
     };
 
 
@@ -121,6 +131,13 @@ const Categoria = () => {
                     )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContainer}
+                />
+            )}
+            {showAlert && (
+                <CustomAlert
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setShowAlert(false)}
                 />
             )}
         </View>

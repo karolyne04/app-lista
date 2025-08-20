@@ -14,6 +14,8 @@ import UserProfile from '../screens/UserProfile';
 import Historico from '../screens/Historico';
 import ResetPassword from '../screens/ResetPassword';
 import { TabRoutes } from './tabs.routes';
+import { CreateList } from '../screens/CreateList';
+import DetalhesHistorico from '../screens/DetalhesHistorico';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -43,8 +45,20 @@ export function AppRoutes() {
                     )
                 }}
             />
-            <Screen name='Product' component={Product} />
-            <Screen name='sop' component={Sop} />
+            <Screen name='DetalhesHistorico' component={DetalhesHistorico} options={{
+                title: "Detalhes do Histórico",
+                headerTitleAlign: "center",
+                headerBackTitleVisible: false,
+                headerBackImage: () => (
+                    <Ionicons
+                        name="chevron-back"
+                        size={24}
+                        color="#6E3CBC"
+                        style={styles.icon}
+                    />
+                )
+            }} />
+
             <Screen name='Cadastro' component={Cadastro}
                 options={{
                     title: "Criar Usuario",
@@ -91,7 +105,21 @@ export function AppRoutes() {
                     )
                 }}
             />
-
+            <Screen name='CreateList' component={CreateList}
+                options={{
+                    title: "Criar Lista",
+                    headerTitleAlign: "center",
+                    headerBackTitleVisible: false,
+                    headerBackImage: () => (
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color="#6E3CBC"
+                            style={styles.icon}
+                        />
+                    )
+                }}
+            />
 
             <Screen name="ResetPassword" component={ResetPassword}
                 options={{
