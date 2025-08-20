@@ -6,11 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon(3).png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+   
     "ios": {
       "supportsTablet": true
     },
@@ -18,7 +14,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.carolyne04.smartlist"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,8 +24,8 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#232323",
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/splash-icon-light.png",
+          "backgroundColor": "#ffffff",
           "dark": {
             "image": "./assets/splash-icon-dark.png",
             "backgroundColor": "#000000"
@@ -36,6 +33,11 @@
           "imageWidth": 200
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6c3853a9-da7a-4878-9a0d-59d3e9eddbf7"
+      }
+    }
   }
 }
